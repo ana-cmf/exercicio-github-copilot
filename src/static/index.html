@@ -46,5 +46,37 @@
     </footer>
 
     <script src="app.js"></script>
+    <script>
+      async function loadActivities() {
+        const response = await fetch('/activities');
+        const activities = await response.json();
+        
+        const container = document.getElementById('activities-list');
+        container.innerHTML = '';
+        
+        for (const [name, activity] of Object.entries(activities)) {
+          const isFull = activity.participants.length >= activity.max_participants;
+          const participantsList = activity.participants.length > 0
+            ? activity.participants.map(p => `<li>${p}</li>`).join('')
+            : '<li class="empty-state">Nenhum participante inscrito</li>';
+          
+          const activityHTML = `
+            <div class="activity-card ${isFull ? 'full' : ''}">
+              <h3>${name}</h3>
+              <p>${activity.description}</p>
+              <p><strong>📅 Horário:</strong> ${activity.schedule}</p>
+              <p><strong>👥 Vagas:</strong> <span class="capacity">${activity.participants.length}/${activity.max_participants}</span></p>
+              <div class="participants">
+                <h4>Participantes inscritos (${activity.participants.length})</h4>
+                <ul>${participantsList}</ul>
+              </div>
+            </div>
+          `;
+          container.innerHTML += activityHTML;
+        }
+      }
+      
+      loadActivities();
+    </script>
   </body>
 </html>
