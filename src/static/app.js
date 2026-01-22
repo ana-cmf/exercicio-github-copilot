@@ -17,14 +17,25 @@ document.addEventListener("DOMContentLoaded", () => {
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
+        
+        const isFull = details.participants.length >= details.max_participants;
+        if (isFull) {
+          activityCard.classList.add("full");
+        }
 
-        const spotsLeft = details.max_participants - details.participants.length;
+        const participantsList = details.participants.length > 0
+          ? details.participants.map(p => `<li>${p}</li>`).join('')
+          : '<li class="empty-state">Nenhum participante inscrito</li>';
 
         activityCard.innerHTML = `
-          <h4>${name}</h4>
+          <h3>${name}</h3>
           <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>📅 Horário:</strong> ${details.schedule}</p>
+          <p><strong>👥 Vagas:</strong> <span class="capacity">${details.participants.length}/${details.max_participants}</span></p>
+          <div class="participants">
+            <h4>Participantes inscritos (${details.participants.length})</h4>
+            <ul>${participantsList}</ul>
+          </div>
         `;
 
         activitiesList.appendChild(activityCard);
@@ -32,7 +43,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // Add option to select dropdown
         const option = document.createElement("option");
         option.value = name;
-        option.textContent = name;
+        option.textContent = `${name} (${details.participants.length}/${details.max_participants})`;
+        if (isFull) {
+          option.disabled = true;
+        }
         activitySelect.appendChild(option);
       });
     } catch (error) {
